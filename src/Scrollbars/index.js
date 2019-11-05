@@ -20,7 +20,9 @@ import {
     thumbHorizontalStyleDefault,
     thumbVerticalStyleDefault,
     disableSelectStyle,
-    disableSelectStyleReset
+    disableSelectStyleReset,
+    trackLeftButtonHorizontalStyleDefault,
+    trackRightButtonHorizontalStyleDefault
 } from './styles';
 
 import {
@@ -28,7 +30,9 @@ import {
     renderTrackHorizontalDefault,
     renderTrackVerticalDefault,
     renderThumbHorizontalDefault,
-    renderThumbVerticalDefault
+    renderThumbVerticalDefault,
+    renderTrackRightButtonHorizontalDefault,
+    renderTrackLeftButtonHorizontalDefault
 } from './defaultRenderElements';
 
 export default class Scrollbars extends Component {
@@ -43,6 +47,7 @@ export default class Scrollbars extends Component {
         this.getClientWidth = this.getClientWidth.bind(this);
         this.getClientHeight = this.getClientHeight.bind(this);
         this.getValues = this.getValues.bind(this);
+        this.getTrackHorizontalWidth = this.getTrackHorizontalWidth.bind(this);
         this.getThumbHorizontalWidth = this.getThumbHorizontalWidth.bind(this);
         this.getThumbVerticalHeight = this.getThumbVerticalHeight.bind(this);
         this.getScrollLeftForOffset = this.getScrollLeftForOffset.bind(this);
@@ -54,6 +59,9 @@ export default class Scrollbars extends Component {
         this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToRight = this.scrollToRight.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
+
+        this.doScrollLeft = this.doScrollLeft.bind(this);
+        this.doScrollRight = this.doScrollRight.bind(this);
 
         this.handleTrackMouseEnter = this.handleTrackMouseEnter.bind(this);
         this.handleTrackMouseLeave = this.handleTrackMouseLeave.bind(this);
@@ -146,10 +154,18 @@ export default class Scrollbars extends Component {
         };
     }
 
+    getTrackHorizontalWidth() {
+        const trackWidth = getInnerWidth(this.trackHorizontal);
+        const leftButtonWidth = getInnerWidth(this.leftButton);
+        const rightButtonWidth = getInnerWidth(this.rightButton);
+
+        return trackWidth - (leftButtonWidth + rightButtonWidth);
+    }
+
     getThumbHorizontalWidth() {
         const { thumbSize, thumbMinSize } = this.props;
         const { scrollWidth, clientWidth } = this.view;
-        const trackWidth = getInnerWidth(this.trackHorizontal);
+        const trackWidth = this.getTrackHorizontalWidth();
         const width = Math.ceil(clientWidth / scrollWidth * trackWidth);
         if (trackWidth === width) return 0;
         if (thumbSize) return thumbSize;
@@ -168,7 +184,7 @@ export default class Scrollbars extends Component {
 
     getScrollLeftForOffset(offset) {
         const { scrollWidth, clientWidth } = this.view;
-        const trackWidth = getInnerWidth(this.trackHorizontal);
+        const trackWidth = this.getTrackHorizontalWidth();
         const thumbWidth = this.getThumbHorizontalWidth();
         return offset / (trackWidth - thumbWidth) * (scrollWidth - clientWidth);
     }
@@ -210,12 +226,46 @@ export default class Scrollbars extends Component {
         this.view.scrollTop = this.view.scrollHeight;
     }
 
+    doScrollRight(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const prev = this.getScrollLeft();
+        this.scrollLeft(this.getScrollLeft() + 50);
+        const current = this.getScrollLeft();
+
+        if (prev === current) {
+            const { trackRightOverflowAction } = this.props;
+
+            if (trackRightOverflowAction) {
+                trackRightOverflowAction();
+                this.scrollToRight();
+            }
+        }
+    }
+
+    doScrollLeft(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (this.getScrollLeft() === 0) {
+            const { trackLeftOverflowAction } = this.props;
+            if (trackLeftOverflowAction) {
+                trackLeftOverflowAction();
+            }
+        } else {
+            this.scrollLeft(this.getScrollLeft() - 50);
+        }
+    }
+
     addListeners() {
         /* istanbul ignore if */
         if (typeof document === 'undefined' || !this.view) return;
-        const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical } = this;
+        const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical, leftButton, rightButton } = this;
         view.addEventListener('scroll', this.handleScroll);
         if (!getScrollbarWidth()) return;
+        rightButton.addEventListener('mousedown', this.doScrollRight);
+        leftButton.addEventListener('mousedown', this.doScrollLeft);
         trackHorizontal.addEventListener('mouseenter', this.handleTrackMouseEnter);
         trackHorizontal.addEventListener('mouseleave', this.handleTrackMouseLeave);
         trackHorizontal.addEventListener('mousedown', this.handleHorizontalTrackMouseDown);
@@ -230,9 +280,11 @@ export default class Scrollbars extends Component {
     removeListeners() {
         /* istanbul ignore if */
         if (typeof document === 'undefined' || !this.view) return;
-        const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical } = this;
+        const { view, trackHorizontal, trackVertical, thumbHorizontal, thumbVertical, leftButton, rightButton } = this;
         view.removeEventListener('scroll', this.handleScroll);
         if (!getScrollbarWidth()) return;
+        rightButton.removeEventListener('mousedown', this.doScrollRight);
+        leftButton.removeEventListener('mousedown', this.doScrollLeft);
         trackHorizontal.removeEventListener('mouseenter', this.handleTrackMouseEnter);
         trackHorizontal.removeEventListener('mouseleave', this.handleTrackMouseLeave);
         trackHorizontal.removeEventListener('mousedown', this.handleHorizontalTrackMouseDown);
@@ -448,7 +500,7 @@ export default class Scrollbars extends Component {
         const values = this.getValues();
         if (getScrollbarWidth()) {
             const { scrollLeft, clientWidth, scrollWidth } = values;
-            const trackHorizontalWidth = getInnerWidth(this.trackHorizontal);
+            const trackHorizontalWidth = this.getTrackHorizontalWidth();
             const thumbHorizontalWidth = this.getThumbHorizontalWidth();
             const thumbHorizontalX = scrollLeft / (scrollWidth - clientWidth) * (trackHorizontalWidth - thumbHorizontalWidth);
             const thumbHorizontalStyle = {
@@ -491,10 +543,14 @@ export default class Scrollbars extends Component {
             onScrollStop,
             onUpdate,
             renderView,
+            renderTrackRightButtonHorizontal,
+            renderTrackLeftButtonHorizontal,
             renderTrackHorizontal,
             renderTrackVertical,
             renderThumbHorizontal,
             renderThumbVertical,
+            // trackLeftOverflowAction,
+            // trackRightOverflowAction,
             tagName,
             hideTracksWhenNotNeeded,
             autoHide,
@@ -569,6 +625,22 @@ export default class Scrollbars extends Component {
             })
         };
 
+        const trackLeftButtonHorizontalStyle = {
+            ...trackLeftButtonHorizontalStyleDefault,
+            ...(autoHide && trackAutoHeightStyle),
+            ...((!scrollbarWidth || (universal && !didMountUniversal)) && {
+                display: 'none'
+            })
+        };
+
+        const trackRightButtonHorizontalStyle = {
+            ...trackRightButtonHorizontalStyleDefault,
+            ...(autoHide && trackAutoHeightStyle),
+            ...((!scrollbarWidth || (universal && !didMountUniversal)) && {
+                display: 'none'
+            })
+        };
+
         return createElement(tagName, { ...props, style: containerStyle, ref: (ref) => { this.container = ref; } }, [
             cloneElement(
                 renderView({ style: viewStyle }),
@@ -578,10 +650,20 @@ export default class Scrollbars extends Component {
             cloneElement(
                 renderTrackHorizontal({ style: trackHorizontalStyle }),
                 { key: 'trackHorizontal', ref: (ref) => { this.trackHorizontal = ref; } },
-                cloneElement(
-                    renderThumbHorizontal({ style: thumbHorizontalStyleDefault }),
-                    { ref: (ref) => { this.thumbHorizontal = ref; } }
-                )
+                [
+                    cloneElement(
+                        renderTrackLeftButtonHorizontal({ style: trackLeftButtonHorizontalStyle }),
+                        { ref: (ref) => { this.leftButton = ref; } }
+                    ),
+                    cloneElement(
+                        renderThumbHorizontal({ style: thumbHorizontalStyleDefault }),
+                        { ref: (ref) => { this.thumbHorizontal = ref; } }
+                    ),
+                    cloneElement(
+                        renderTrackRightButtonHorizontal({ style: trackRightButtonHorizontalStyle }),
+                        { ref: (ref) => { this.rightButton = ref; } }
+                    ),
+                ]
             ),
             cloneElement(
                 renderTrackVertical({ style: trackVerticalStyle }),
@@ -602,10 +684,14 @@ Scrollbars.propTypes = {
     onScrollStop: PropTypes.func,
     onUpdate: PropTypes.func,
     renderView: PropTypes.func,
+    renderTrackRightButtonHorizontal: PropTypes.func,
+    renderTrackLeftButtonHorizontal: PropTypes.func,
     renderTrackHorizontal: PropTypes.func,
     renderTrackVertical: PropTypes.func,
     renderThumbHorizontal: PropTypes.func,
     renderThumbVertical: PropTypes.func,
+    trackLeftOverflowAction: PropTypes.func,
+    trackRightOverflowAction: PropTypes.func,
     tagName: PropTypes.string,
     thumbSize: PropTypes.number,
     thumbMinSize: PropTypes.number,
@@ -629,6 +715,8 @@ Scrollbars.propTypes = {
 
 Scrollbars.defaultProps = {
     renderView: renderViewDefault,
+    renderTrackRightButtonHorizontal: renderTrackRightButtonHorizontalDefault,
+    renderTrackLeftButtonHorizontal: renderTrackLeftButtonHorizontalDefault,
     renderTrackHorizontal: renderTrackHorizontalDefault,
     renderTrackVertical: renderTrackVerticalDefault,
     renderThumbHorizontal: renderThumbHorizontalDefault,

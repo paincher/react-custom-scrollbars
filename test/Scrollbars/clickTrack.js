@@ -25,11 +25,15 @@ export default function createTests(scrollbarWidth) {
                 </Scrollbars>
             ), node, function callback() {
                 setTimeout(() => {
-                    const { view, trackHorizontal: bar } = this;
+                    const { view, trackHorizontal: bar, leftButton: btn } = this;
                     const { left, width } = bar.getBoundingClientRect();
+
+                    const { width: btnWidth } = btn.getBoundingClientRect();
+
                     simulant.fire(bar, 'mousedown', {
                         target: bar,
-                        clientX: left + (width / 2)
+                        clientX: left + (width / 2) - btnWidth
+                        // 10 es el ancho del boton
                     });
                     expect(view.scrollLeft).toEqual(50);
                     done();

@@ -132,9 +132,10 @@ export default function createTests(scrollbarWidth) {
                         </Scrollbars>
                     ), node, function callback() {
                         setTimeout(() => {
-                            // 100 / 200 * 96 = 48
+                            // (100 / 200 * 96) = 48 - 10
                             expect(this.thumbVertical.style.height).toEqual('48px');
-                            expect(this.thumbHorizontal.style.width).toEqual('48px');
+                            // El horizontal considera el ancho del boton
+                            expect(this.thumbHorizontal.style.width).toEqual('38px');
                             done();
                         }, 100);
                     });

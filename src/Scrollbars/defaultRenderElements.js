@@ -46,3 +46,21 @@ export function renderThumbVerticalDefault({ style, ...props }) {
     };
     return <div style={finalStyle} {...props} />;
 }
+
+export function renderTrackRightButtonHorizontalDefault({ style, ...props }) {
+    const finalStyle = {
+        ...style,
+        backgroundColor: 'white',
+    };
+
+    return <div style={finalStyle} {...props} >⏵</div>;
+}
+
+export function renderTrackLeftButtonHorizontalDefault({ style, ...props }) {
+    const finalStyle = {
+        ...style,
+        backgroundColor: 'white',
+    };
+
+    return <div style={finalStyle} {...props} >⏴</div>;
+}

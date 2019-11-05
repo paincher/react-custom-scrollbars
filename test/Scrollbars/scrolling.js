@@ -28,7 +28,9 @@ export default function createTests(scrollbarWidth, envScrollbarWidth) {
                         if (scrollbarWidth) {
                             // 50 / (200 - 100) * (96 - 48) = 24
                             expect(this.thumbVertical.style.transform).toEqual('translateY(24px)');
-                            expect(this.thumbHorizontal.style.transform).toEqual('translateX(24px)');
+                            // 50 / (200 - 100) * (96 - 48 - 10) = 24 (10 del ancho del boton)
+                            // expect(this.thumbHorizontal.style.transform).toEqual('translateX(24px)');
+                            expect(this.thumbHorizontal.style.transform).toEqual('translateX(19px)');
                         } else {
                             expect(this.thumbVertical.style.transform).toEqual('');
                             expect(this.thumbHorizontal.style.transform).toEqual('');

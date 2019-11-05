@@ -37,7 +37,8 @@ export const viewStyleUniversalInitial = {
 
 export const trackHorizontalStyleDefault = {
     position: 'absolute',
-    height: 6
+    height: 6,
+    display: 'inline-flex',
 };
 
 export const trackVerticalStyleDefault = {
@@ -63,4 +64,26 @@ export const disableSelectStyle = {
 
 export const disableSelectStyleReset = {
     userSelect: ''
+};
+
+export const trackRightButtonHorizontalStyleDefault = {
+    cursor: 'pointer',
+    position: 'absolute',
+    height: 10,
+    width: 10,
+    right: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -0.5,
+};
+
+export const trackLeftButtonHorizontalStyleDefault = {
+    cursor: 'pointer',
+    height: 10,
+    width: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -0.5,
 };
