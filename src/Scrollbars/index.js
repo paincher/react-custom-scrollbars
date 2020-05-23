@@ -226,6 +226,23 @@ export default class Scrollbars extends Component {
         this.view.scrollTop = this.view.scrollHeight;
     }
 
+    scrollOrientation() {
+        const prevLeft = this.viewScrollLeftPrev || 0;
+        const currentLeft = this.getScrollLeft();
+
+        const prevTop = this.viewScrollTopPrev || 0;
+        const currentTop = this.getScrollTop();
+
+        let orientation = undefined;
+        if (prevLeft !== currentLeft) {
+            orientation = 'horizontal';
+        } else if (prevTop !== currentTop) {
+            orientation = 'vertical';
+        }
+
+        return orientation;
+    }
+
     doScrollRight(event) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -300,6 +317,11 @@ export default class Scrollbars extends Component {
 
     handleScroll(event) {
         const { onScroll, onScrollFrame } = this.props;
+
+        // Save previous values of scrolling for determine orientation
+        this.viewScrollLeftPrev = this.viewScrollLeft;
+        this.viewScrollTopPrev = this.viewScrollTop;
+
         if (onScroll) onScroll(event);
         this.update(values => {
             const { scrollLeft, scrollTop } = values;
@@ -549,8 +571,8 @@ export default class Scrollbars extends Component {
             renderTrackVertical,
             renderThumbHorizontal,
             renderThumbVertical,
-            // trackLeftOverflowAction,
-            // trackRightOverflowAction,
+            trackLeftOverflowAction,
+            trackRightOverflowAction,
             tagName,
             hideTracksWhenNotNeeded,
             autoHide,
@@ -653,15 +675,15 @@ export default class Scrollbars extends Component {
                 [
                     cloneElement(
                         renderTrackLeftButtonHorizontal({ style: trackLeftButtonHorizontalStyle }),
-                        { ref: (ref) => { this.leftButton = ref; } }
+                        { key: 'leftButton', ref: (ref) => { this.leftButton = ref; } }
                     ),
                     cloneElement(
                         renderThumbHorizontal({ style: thumbHorizontalStyleDefault }),
-                        { ref: (ref) => { this.thumbHorizontal = ref; } }
+                        { key: 'thumbHorizontal', ref: (ref) => { this.thumbHorizontal = ref; } }
                     ),
                     cloneElement(
                         renderTrackRightButtonHorizontal({ style: trackRightButtonHorizontalStyle }),
-                        { ref: (ref) => { this.rightButton = ref; } }
+                        { key: 'rightButton', ref: (ref) => { this.rightButton = ref; } }
                     ),
                 ]
             ),

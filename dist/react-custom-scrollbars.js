@@ -647,6 +647,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.view.scrollTop = this.view.scrollHeight;
 	        }
 	    }, {
+	        key: 'scrollOrientation',
+	        value: function scrollOrientation() {
+	            var prevLeft = this.viewScrollLeftPrev || 0;
+	            var currentLeft = this.getScrollLeft();
+
+	            var prevTop = this.viewScrollTopPrev || 0;
+	            var currentTop = this.getScrollTop();
+
+	            var orientation = undefined;
+	            if (prevLeft !== currentLeft) {
+	                orientation = 'horizontal';
+	            } else if (prevTop !== currentTop) {
+	                orientation = 'vertical';
+	            }
+
+	            return orientation;
+	        }
+	    }, {
 	        key: 'doScrollRight',
 	        value: function doScrollRight(event) {
 	            event.preventDefault();
@@ -746,6 +764,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _props3 = this.props,
 	                onScroll = _props3.onScroll,
 	                onScrollFrame = _props3.onScrollFrame;
+
+	            // Save previous values of scrolling for determine orientation
+
+	            this.viewScrollLeftPrev = this.viewScrollLeft;
+	            this.viewScrollTopPrev = this.viewScrollTop;
 
 	            if (onScroll) onScroll(event);
 	            this.update(function (values) {
@@ -1075,6 +1098,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                renderTrackVertical = _props5.renderTrackVertical,
 	                renderThumbHorizontal = _props5.renderThumbHorizontal,
 	                renderThumbVertical = _props5.renderThumbVertical,
+	                trackLeftOverflowAction = _props5.trackLeftOverflowAction,
+	                trackRightOverflowAction = _props5.trackRightOverflowAction,
 	                tagName = _props5.tagName,
 	                hideTracksWhenNotNeeded = _props5.hideTracksWhenNotNeeded,
 	                autoHide = _props5.autoHide,
@@ -1088,7 +1113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                autoHeightMax = _props5.autoHeightMax,
 	                style = _props5.style,
 	                children = _props5.children,
-	                props = _objectWithoutProperties(_props5, ['onScroll', 'onScrollFrame', 'onScrollStart', 'onScrollStop', 'onUpdate', 'renderView', 'renderTrackRightButtonHorizontal', 'renderTrackLeftButtonHorizontal', 'renderTrackHorizontal', 'renderTrackVertical', 'renderThumbHorizontal', 'renderThumbVertical', 'tagName', 'hideTracksWhenNotNeeded', 'autoHide', 'autoHideTimeout', 'autoHideDuration', 'thumbSize', 'thumbMinSize', 'universal', 'autoHeight', 'autoHeightMin', 'autoHeightMax', 'style', 'children']);
+	                props = _objectWithoutProperties(_props5, ['onScroll', 'onScrollFrame', 'onScrollStart', 'onScrollStop', 'onUpdate', 'renderView', 'renderTrackRightButtonHorizontal', 'renderTrackLeftButtonHorizontal', 'renderTrackHorizontal', 'renderTrackVertical', 'renderThumbHorizontal', 'renderThumbVertical', 'trackLeftOverflowAction', 'trackRightOverflowAction', 'tagName', 'hideTracksWhenNotNeeded', 'autoHide', 'autoHideTimeout', 'autoHideDuration', 'thumbSize', 'thumbMinSize', 'universal', 'autoHeight', 'autoHeightMin', 'autoHeightMax', 'style', 'children']);
 	            /* eslint-enable no-unused-vars */
 
 	            var didMountUniversal = this.state.didMountUniversal;
@@ -1139,11 +1164,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _this7.view = _ref4;
 	                } }, children), (0, _react.cloneElement)(renderTrackHorizontal({ style: trackHorizontalStyle }), { key: 'trackHorizontal', ref: function ref(_ref5) {
 	                    _this7.trackHorizontal = _ref5;
-	                } }, [(0, _react.cloneElement)(renderTrackLeftButtonHorizontal({ style: trackLeftButtonHorizontalStyle }), { ref: function ref(_ref6) {
+	                } }, [(0, _react.cloneElement)(renderTrackLeftButtonHorizontal({ style: trackLeftButtonHorizontalStyle }), { key: 'leftButton', ref: function ref(_ref6) {
 	                    _this7.leftButton = _ref6;
-	                } }), (0, _react.cloneElement)(renderThumbHorizontal({ style: _styles.thumbHorizontalStyleDefault }), { ref: function ref(_ref7) {
+	                } }), (0, _react.cloneElement)(renderThumbHorizontal({ style: _styles.thumbHorizontalStyleDefault }), { key: 'thumbHorizontal', ref: function ref(_ref7) {
 	                    _this7.thumbHorizontal = _ref7;
-	                } }), (0, _react.cloneElement)(renderTrackRightButtonHorizontal({ style: trackRightButtonHorizontalStyle }), { ref: function ref(_ref8) {
+	                } }), (0, _react.cloneElement)(renderTrackRightButtonHorizontal({ style: trackRightButtonHorizontalStyle }), { key: 'rightButton', ref: function ref(_ref8) {
 	                    _this7.rightButton = _ref8;
 	                } })]), (0, _react.cloneElement)(renderTrackVertical({ style: trackVerticalStyle }), { key: 'trackVertical', ref: function ref(_ref9) {
 	                    _this7.trackVertical = _ref9;
@@ -1258,7 +1283,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var trackHorizontalStyleDefault = exports.trackHorizontalStyleDefault = {
 	    position: 'absolute',
 	    height: 6,
-	    display: 'inline-flex'
+	    display: 'inline-flex',
+	    alignItems: 'center'
 	};
 
 	var trackVerticalStyleDefault = exports.trackVerticalStyleDefault = {

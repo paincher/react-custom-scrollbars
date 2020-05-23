@@ -39,6 +39,7 @@ export const trackHorizontalStyleDefault = {
     position: 'absolute',
     height: 6,
     display: 'inline-flex',
+    alignItems: 'center',
 };
 
 export const trackVerticalStyleDefault = {
